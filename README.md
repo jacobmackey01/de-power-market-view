@@ -69,6 +69,12 @@ checked-in SQL transformation in
 <code>outputs/negative_price_risk.png</code> together with
 <code>outputs/negative_price_exploratory.png</code>.
 
+Both commands read and write <code>data/</code> and <code>outputs/</code>
+relative to the current working directory, so run them from the repository
+root. Pass <code>--project-root</code> to point them somewhere else.
+<code>de-power-view</code> stops with a single explanatory line, rather than a
+traceback, if no processed snapshot is present.
+
 The retrieval end date should be chosen far enough in the past that the last
 local day is settled and complete. The report itself selects the latest
 complete local day rather than assuming every API row is usable.

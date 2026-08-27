@@ -16,6 +16,10 @@ from .report import render_report
 from .warehouse import build_warehouse, read_market_table
 
 
+class SnapshotNotFoundError(FileNotFoundError):
+    """Raised when the processed snapshot is not where the view expects it."""
+
+
 def _jsonable(value: Any) -> Any:
     if isinstance(value, pd.DataFrame):
         return [_jsonable(row) for row in value.to_dict(orient="records")]
@@ -43,6 +47,13 @@ def run_view(
     """Build the warehouse and all user-facing outputs."""
 
     snapshot_path = snapshot_path or project_root / "data" / "processed" / "market_hourly.csv"
+    if not snapshot_path.exists():
+        raise SnapshotNotFoundError(
+            f"no processed snapshot at {snapshot_path}.\n"
+            f"Run de-power-fetch --start YYYY-MM-DD --end YYYY-MM-DD first, or "
+            f"pass --project-root pointing at a checkout that already contains "
+            f"data/processed/market_hourly.csv."
+        )
     database_path = database_path or project_root / "data" / "market_view.duckdb"
     output_dir = output_dir or project_root / "outputs"
     provenance_path = project_root / "data" / "provenance.json"
@@ -93,7 +104,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--project-root",
         type=Path,
-        default=Path(__file__).resolve().parents[2],
+        default=None,
+        help=(
+            "Directory holding data/ and outputs/. Defaults to the current "
+            "working directory. Resolving this from the package location only "
+            "worked for an editable checkout."
+        ),
     )
     parser.add_argument("--snapshot", type=Path, default=None)
     parser.add_argument("--database", type=Path, default=None)
@@ -103,12 +119,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    paths = run_view(
-        args.project_root.resolve(),
-        snapshot_path=args.snapshot,
-        database_path=args.database,
-        output_dir=args.output_dir,
-    )
+    project_root = (args.project_root or Path.cwd()).resolve()
+    try:
+        paths = run_view(
+            project_root,
+            snapshot_path=args.snapshot,
+            database_path=args.database,
+            output_dir=args.output_dir,
+        )
+    except SnapshotNotFoundError as error:
+        raise SystemExit(str(error)) from None
     for label, path in paths.items():
         print(f"{label}: {path}")
 

@@ -74,15 +74,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--project-root",
         type=Path,
-        default=Path(__file__).resolve().parents[2],
-        help="Repository root (defaults to the checkout containing this package).",
+        default=None,
+        help=(
+            "Directory to write data/ into. Defaults to the current working "
+            "directory. Resolving this from the package location only worked "
+            "for an editable checkout."
+        ),
     )
     return parser
 
 
 def main() -> None:
     args = build_parser().parse_args()
-    result = fetch_snapshot(args.start, args.end, args.project_root.resolve())
+    project_root = (args.project_root or Path.cwd()).resolve()
+    result = fetch_snapshot(args.start, args.end, project_root)
     quality = result["quality"]
     print(
         f"Wrote {result['processed_path']} with "
