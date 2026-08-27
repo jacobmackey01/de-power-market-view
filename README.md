@@ -60,7 +60,8 @@ writes source provenance to <code>data/provenance.json</code>. Raw responses are
 cached under <code>data/raw/</code> and ignored by Git.
 
 <code>de-power-view</code> builds <code>data/market_view.duckdb</code>, runs the
-checked-in SQL transformation, writes the report to
+checked-in SQL transformation in
+<code>src/de_power_market_view/sql/market_view.sql</code>, writes the report to
 <code>outputs/market_view.md</code>, saves the summary to
 <code>outputs/results.json</code>, and creates
 <code>outputs/negative_price_risk.png</code>.
@@ -98,8 +99,8 @@ src/de_power_market_view/
   report.py      analyst-style Markdown output
   fetch.py       de-power-fetch entry point
   view.py        de-power-view entry point
-sql/
-  market_view.sql
+  sql/
+    market_view.sql   the single source of truth for derived fields
 tests/
 ~~~
 

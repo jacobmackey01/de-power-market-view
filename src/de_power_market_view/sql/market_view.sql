@@ -1,8 +1,13 @@
 -- Derived market-analysis table.
 --
--- The source CSV contains only retrieved SMARD values and calendar fields
--- needed to inspect the snapshot. Market quantities used by the analysis are
--- derived here so the transformation is visible and executable in SQL.
+-- This file is the single source of truth for every derived market quantity.
+-- The source CSV contains only retrieved SMARD values and the calendar fields
+-- needed to inspect the snapshot; wind totals, residual load, the renewable
+-- shares and the negative-price flag are all defined here and nowhere else.
+--
+-- The negative-price threshold is not hard coded. It is read from
+-- analysis_config, which build_warehouse populates from
+-- NEGATIVE_PRICE_THRESHOLD_EUR_MWH, so the rule has exactly one definition.
 
 CREATE OR REPLACE TABLE market_hourly AS
 WITH typed AS (
@@ -42,7 +47,7 @@ SELECT
     load_mw - wind_total_mw - solar_mw AS residual_load_mw,
     CASE
         WHEN price_eur_mwh IS NULL THEN NULL
-        WHEN price_eur_mwh < 0 THEN 1
+        WHEN price_eur_mwh < config.negative_price_threshold_eur_mwh THEN 1
         ELSE 0
     END AS negative_price,
     CASE
@@ -63,5 +68,6 @@ SELECT
         ELSE 0
     END AS analysis_complete
 FROM derived
+CROSS JOIN analysis_config AS config
 WHERE timestamp_utc IS NOT NULL
 ORDER BY timestamp_utc;

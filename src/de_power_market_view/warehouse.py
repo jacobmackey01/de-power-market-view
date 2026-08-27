@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from importlib import resources
 from pathlib import Path
 
 import pandas as pd
+
+from . import NEGATIVE_PRICE_THRESHOLD_EUR_MWH
 
 REQUIRED_SNAPSHOT_COLUMNS = {
     "timestamp_utc",
@@ -42,6 +45,21 @@ def load_snapshot(path: Path) -> pd.DataFrame:
     return snapshot
 
 
+def market_view_sql() -> str:
+    """Return the checked-in SQL transformation.
+
+    The file ships as package data, so this resolves correctly whether the
+    project is installed editable or into site-packages. Resolving it
+    relative to __file__ only worked for an editable checkout.
+    """
+
+    return (
+        resources.files(__package__)
+        .joinpath("sql/market_view.sql")
+        .read_text(encoding="utf-8")
+    )
+
+
 def build_warehouse(
     snapshot_path: Path,
     database_path: Path,
@@ -58,9 +76,20 @@ def build_warehouse(
     connection.execute("CREATE OR REPLACE TABLE raw_market AS SELECT * FROM snapshot_df")
     connection.unregister("snapshot_df")
 
-    if sql_path is None:
-        sql_path = Path(__file__).resolve().parents[2] / "sql" / "market_view.sql"
-    connection.execute(sql_path.read_text(encoding="utf-8"))
+    # The negative-price rule has one definition, in Python. It is passed to
+    # SQL through this table so the two layers cannot drift apart.
+    connection.execute(
+        "CREATE OR REPLACE TABLE analysis_config AS "
+        "SELECT CAST(? AS DOUBLE) AS negative_price_threshold_eur_mwh",
+        [NEGATIVE_PRICE_THRESHOLD_EUR_MWH],
+    )
+
+    sql = (
+        sql_path.read_text(encoding="utf-8")
+        if sql_path is not None
+        else market_view_sql()
+    )
+    connection.execute(sql)
     return connection
 
 

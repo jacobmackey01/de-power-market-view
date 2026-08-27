@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 
 from . import MARKET_TZ, NEGATIVE_PRICE_THRESHOLD_EUR_MWH
@@ -103,24 +102,18 @@ def normalise_market_frame(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def complete_analysis_rows(snapshot: pd.DataFrame) -> pd.DataFrame:
-    """Keep rows with the price and every observed fundamental available."""
+    """Keep rows with the price and every observed fundamental available.
+
+    This is a completeness filter only. Every derived market quantity - wind
+    total, residual load, the renewable shares and the negative-price flag -
+    is defined once in the packaged sql/market_view.sql and is deliberately
+    not recomputed here, so the two layers cannot disagree.
+    """
 
     missing = [column for column in ANALYSIS_COLUMNS if column not in snapshot.columns]
     if missing:
         raise ValueError(f"snapshot is missing analysis columns: {missing}")
-    out = snapshot.dropna(subset=ANALYSIS_COLUMNS).copy()
-    out["negative_price"] = (
-        out["price_eur_mwh"] < NEGATIVE_PRICE_THRESHOLD_EUR_MWH
-    ).astype(int)
-    out["wind_total_mw"] = out["wind_onshore_mw"] + out["wind_offshore_mw"]
-    out["residual_load_mw"] = out["load_mw"] - out["wind_total_mw"] - out["solar_mw"]
-    out["wind_share_of_load"] = np.where(
-        out["load_mw"] > 0, out["wind_total_mw"] / out["load_mw"], np.nan
-    )
-    out["solar_share_of_load"] = np.where(
-        out["load_mw"] > 0, out["solar_mw"] / out["load_mw"], np.nan
-    )
-    return out
+    return snapshot.dropna(subset=ANALYSIS_COLUMNS).copy()
 
 
 def quality_report(snapshot: pd.DataFrame) -> dict[str, object]:
@@ -146,7 +139,11 @@ def quality_report(snapshot: pd.DataFrame) -> dict[str, object]:
         "n_complete_analysis_rows": int(len(complete)),
         "negative_price_hours": int((price < NEGATIVE_PRICE_THRESHOLD_EUR_MWH).sum()),
         "negative_price_rate_complete_rows": (
-            float((complete["negative_price"] == 1).mean()) if len(complete) else None
+            float(
+                (complete["price_eur_mwh"] < NEGATIVE_PRICE_THRESHOLD_EUR_MWH).mean()
+            )
+            if len(complete)
+            else None
         ),
         "ranges": {
             column: {
