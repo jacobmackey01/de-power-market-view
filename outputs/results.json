@@ -53,6 +53,144 @@
       "residual_load_median_mw": 45811.92
     }
   ],
+  "exploratory": {
+    "residual_deciles": [
+      {
+        "group": "D1 · lowest residual load",
+        "n_hours": 2323,
+        "negative_hours": 1256,
+        "negative_rate": 0.5406801549720189,
+        "ci_low": 0.5203640254239311,
+        "ci_high": 0.5608619591897185,
+        "residual_load_min_mw": -15561.599999999991,
+        "residual_load_max_mw": 7926.25,
+        "residual_load_median_mw": 2695.84
+      },
+      {
+        "group": "D2",
+        "n_hours": 2323,
+        "negative_hours": 172,
+        "negative_rate": 0.07404218682737838,
+        "ci_low": 0.0640830497763799,
+        "ci_high": 0.08540783090926711,
+        "residual_load_min_mw": 7930.25,
+        "residual_load_max_mw": 16065.41,
+        "residual_load_median_mw": 12382.59
+      },
+      {
+        "group": "D3",
+        "n_hours": 2323,
+        "negative_hours": 8,
+        "negative_rate": 0.0034438226431338786,
+        "ci_low": 0.0017460479160620658,
+        "ci_high": 0.0067812192601823355,
+        "residual_load_min_mw": 16078.170000000004,
+        "residual_load_max_mw": 21798.75,
+        "residual_load_median_mw": 19142.249999999996
+      },
+      {
+        "group": "D4",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 21799.200000000004,
+        "residual_load_max_mw": 26477.79,
+        "residual_load_median_mw": 24245.850000000002
+      },
+      {
+        "group": "D5",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 26480.179999999997,
+        "residual_load_max_mw": 30424.300000000003,
+        "residual_load_median_mw": 28489.25
+      },
+      {
+        "group": "D6",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 30425.25,
+        "residual_load_max_mw": 34017.45999999999,
+        "residual_load_median_mw": 32257.06
+      },
+      {
+        "group": "D7",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 34017.880000000005,
+        "residual_load_max_mw": 37664.37,
+        "residual_load_median_mw": 35824.83
+      },
+      {
+        "group": "D8",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 37665.05,
+        "residual_load_max_mw": 41795.09,
+        "residual_load_median_mw": 39578.740000000005
+      },
+      {
+        "group": "D9",
+        "n_hours": 2323,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016509933465174425,
+        "residual_load_min_mw": 41802.76,
+        "residual_load_max_mw": 47506.0,
+        "residual_load_median_mw": 44396.75
+      },
+      {
+        "group": "D10 · highest residual load",
+        "n_hours": 2324,
+        "negative_hours": 0,
+        "negative_rate": 0.0,
+        "ci_low": 0.0,
+        "ci_high": 0.0016502841086781846,
+        "residual_load_min_mw": 47512.45,
+        "residual_load_max_mw": 68275.73999999999,
+        "residual_load_median_mw": 52303.490000000005
+      }
+    ],
+    "residual_sign_split": [
+      {
+        "group": "residual load < 0 MW",
+        "n_hours": 724,
+        "negative_hours": 554,
+        "negative_rate": 0.7651933701657458,
+        "ci_low": 0.7329669941774094,
+        "ci_high": 0.79462032701995,
+        "residual_load_min_mw": -15561.599999999991,
+        "residual_load_max_mw": -6.5,
+        "residual_load_median_mw": -3218.8500000000004
+      },
+      {
+        "group": "residual load >= 0 MW",
+        "n_hours": 22507,
+        "negative_hours": 882,
+        "negative_rate": 0.03918780823743724,
+        "ci_low": 0.036730363202503453,
+        "ci_high": 0.04180253358621546,
+        "residual_load_min_mw": 17.69999999999709,
+        "residual_load_max_mw": 68275.73999999999,
+        "residual_load_median_mw": 31035.89
+      }
+    ]
+  },
   "hourly_rates": [
     {
       "group": "0",
@@ -13989,62 +14127,57 @@
     "train_negative_hours": 17544,
     "test_negative_hours": 4251,
     "baseline_metrics": {
-      "average_precision": 0.07619603193441771,
+      "average_precision": 0.08678839957035446,
       "roc_auc": 0.5,
       "brier_score": 0.0802316638156237,
       "log_loss": 0.30304846561195964
     },
     "logistic_metrics": {
-      "average_precision": 0.8142908651279713,
-      "roc_auc": 0.9767818172078323,
-      "brier_score": 0.057239374100507834,
-      "log_loss": 0.1789549054985801
+      "average_precision": 0.8140364190738595,
+      "roc_auc": 0.9768097663683094,
+      "brier_score": 0.0572442027677729,
+      "log_loss": 0.17861846569461134
     },
     "coefficients": [
       {
         "feature": "residual_load_mw",
-        "standardised_coefficient": -2.8980776085611937,
-        "odds_ratio_per_standard_deviation": 0.055129097960360515
-      },
-      {
-        "feature": "load_mw",
-        "standardised_coefficient": -1.5909928639981366,
-        "odds_ratio_per_standard_deviation": 0.20372324181555218
-      },
-      {
-        "feature": "wind_total_mw",
-        "standardised_coefficient": 1.221958321936874,
-        "odds_ratio_per_standard_deviation": 3.393827436880717
+        "standardised_coefficient": -5.152466640340108,
+        "odds_ratio_per_standard_deviation": 0.00578511730939851
       },
       {
         "feature": "solar_mw",
-        "standardised_coefficient": 1.1448145873473248,
-        "odds_ratio_per_standard_deviation": 3.141858762463172
+        "standardised_coefficient": -0.6860091917810082,
+        "odds_ratio_per_standard_deviation": 0.5035817624718175
       },
       {
         "feature": "hour_cos",
-        "standardised_coefficient": -0.6770489430301283,
-        "odds_ratio_per_standard_deviation": 0.5081142561407089
+        "standardised_coefficient": -0.6154262801707012,
+        "odds_ratio_per_standard_deviation": 0.5404104799304187
+      },
+      {
+        "feature": "wind_total_mw",
+        "standardised_coefficient": -0.5351240364971842,
+        "odds_ratio_per_standard_deviation": 0.5855966502826261
       },
       {
         "feature": "month_cos",
-        "standardised_coefficient": -0.447890419474006,
-        "odds_ratio_per_standard_deviation": 0.6389746993793417
+        "standardised_coefficient": -0.44927332702842926,
+        "odds_ratio_per_standard_deviation": 0.6380916671571785
       },
       {
         "feature": "month_sin",
-        "standardised_coefficient": 0.32437530251192204,
-        "odds_ratio_per_standard_deviation": 1.3831663155134288
+        "standardised_coefficient": 0.3228382873174577,
+        "odds_ratio_per_standard_deviation": 1.3810420008401882
       },
       {
         "feature": "hour_sin",
-        "standardised_coefficient": -0.28263411543459405,
-        "odds_ratio_per_standard_deviation": 0.753795539563393
+        "standardised_coefficient": -0.26871169681909157,
+        "odds_ratio_per_standard_deviation": 0.7643635923398304
       },
       {
         "feature": "is_weekend",
-        "standardised_coefficient": 0.04786938097089434,
-        "odds_ratio_per_standard_deviation": 1.04903362262184
+        "standardised_coefficient": 0.08719822619956476,
+        "odds_ratio_per_standard_deviation": 1.0911129454552755
       }
     ]
   }

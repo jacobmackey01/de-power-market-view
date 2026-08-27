@@ -96,19 +96,62 @@ seasonality is stable across future years:
 
 ![Historical negative-price risk figure](negative_price_risk.png)
 
+## Exploratory sensitivity, added after the first retrieval
+
+Neither view below was preregistered. Both were added once the preregistered
+quartiles turned out to place almost the entire event mass inside Q1, leaving
+Q2 to Q4 nearly empty and hiding how steeply risk varies inside that bottom
+quartile. Amendment 1 in <code>PREREGISTRATION.md</code> records that decision
+and its date.
+
+They are reported alongside the primary readout, not in place of it. Because
+they were chosen with knowledge of the data, their sharper separation is a
+description of this sample rather than evidence of the same standing as the
+preregistered table above.
+
+### Residual-load deciles
+
+| Stratum | Hours | Negative | Rate | CI low | CI high |
+| --- | --- | --- | --- | --- | --- |
+| D1 · lowest residual load | 2,323 | 1,256 | 54.1% | 52.0% | 56.1% |
+| D2 | 2,323 | 172 | 7.4% | 6.4% | 8.5% |
+| D3 | 2,323 | 8 | 0.3% | 0.2% | 0.7% |
+| D4 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D5 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D6 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D7 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D8 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D9 | 2,323 | 0 | 0.0% | 0.0% | 0.2% |
+| D10 · highest residual load | 2,324 | 0 | 0.0% | 0.0% | 0.2% |
+
+### Renewable surplus: residual load below zero
+
+Unlike the quantile strata, this boundary is fixed by the physics of the
+system rather than by the retrieved sample, so it does not move when the
+window changes.
+
+| Condition | Hours | Negative | Rate | CI low | CI high |
+| --- | --- | --- | --- | --- | --- |
+| residual load < 0 MW | 724 | 554 | 76.5% | 73.3% | 79.5% |
+| residual load >= 0 MW | 22,507 | 882 | 3.9% | 3.7% | 4.2% |
+
+In this sample, hours in which wind and solar together exceeded German load cleared below zero 76.5% of the time (95% Wilson interval 73.3%–79.5%, n=724), against 3.9% for all other hours (n=22,507).
+
+![Exploratory negative-price risk figure](negative_price_exploratory.png)
+
 ## Chronological diagnostic
 
-On the untouched final 2026-02-13 to 2026-08-25 period, the untuned logistic diagnostic returned average precision 81.4% versus 7.6% for the prevalence baseline. Its Brier score was 0.0572 versus 0.0802; lower is better. This is an explanatory holdout using observed fundamentals, not evidence of a pre-auction or tradeable signal.
+On the untouched final 2026-02-13 to 2026-08-25 period, the untuned logistic diagnostic returned average precision 81.4% versus 8.7% for the prevalence baseline. Its Brier score was 0.0572 versus 0.0802; lower is better. This is an explanatory holdout using observed fundamentals, not evidence of a pre-auction or tradeable signal.
 
 Top standardised model associations (not causal effects):
 
 | Feature | Coefficient | Odds ratio per SD |
 | --- | --- | --- |
-| residual_load_mw | -2.898 | 0.055 |
-| load_mw | -1.591 | 0.204 |
-| wind_total_mw | 1.222 | 3.394 |
-| solar_mw | 1.145 | 3.142 |
-| hour_cos | -0.677 | 0.508 |
+| residual_load_mw | -5.152 | 0.006 |
+| solar_mw | -0.686 | 0.504 |
+| hour_cos | -0.615 | 0.540 |
+| wind_total_mw | -0.535 | 0.586 |
+| month_cos | -0.449 | 0.638 |
 
 ## What would invalidate this view?
 
@@ -131,7 +174,7 @@ evaluation before making any pre-auction claim.
 
 The complete-row window is 2023-12-31T23:00:00+00:00 to
 2026-08-25T21:00:00+00:00, covering 968 complete
-local days. The snapshot records 705 response fetches, of which 705 were served from the local raw-response cache. See data/provenance.json for URL hashes and retrieval timestamps.
+local days. The snapshot records 705 response reads: 0 retrieved from SMARD during the run that wrote it and 705 read from the local raw-response cache. Of the cached responses, 705 predate retrieval-time recording, so the moment SMARD actually served them is unknown and is reported as null rather than as the cache-read time. See data/provenance.json for URL hashes and both timestamps.
 
 
 ## Data quality
