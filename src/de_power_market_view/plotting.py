@@ -18,6 +18,7 @@ def plot_market_view(result: dict, output_path: Path) -> None:
 
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import PercentFormatter
 
     quartiles = result["residual_quartiles"]
     hours = result["hourly_rates"]
@@ -57,7 +58,7 @@ def plot_market_view(result: dict, output_path: Path) -> None:
         lw=1.2,
     )
     ax.set_xticks(x, ["Q1\nlowest", "Q2", "Q3", "Q4\nhighest"])
-    ax.set_ylabel("Negative-price hours")
+    ax.set_ylabel("Negative-price rate")
     ax.set_title("Risk by observed residual-load quartile")
     ax.grid(axis="y", alpha=0.25)
     for index, row in quartiles.iterrows():
@@ -113,6 +114,9 @@ def plot_market_view(result: dict, output_path: Path) -> None:
     ax.set_title("Seasonality, with Wilson 95% interval")
     ax.set_xticks(range(1, 13))
     ax.grid(alpha=0.25)
+
+    for rate_axis in (axes[0, 0], axes[0, 1], axes[1, 0]):
+        rate_axis.yaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
 
     ax = axes[1, 1]
     ax.hist(
