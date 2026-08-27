@@ -10,7 +10,7 @@ from de_power_market_view.analysis import (
     chronological_diagnostic,
     wilson_interval,
 )
-from de_power_market_view.analysis_base import _average_precision
+from de_power_market_view.analysis import _average_precision
 
 
 def _hourly_frame(days: int = 24) -> pd.DataFrame:
