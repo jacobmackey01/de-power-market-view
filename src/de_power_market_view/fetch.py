@@ -33,15 +33,21 @@ def fetch_snapshot(start_date: str, end_date: str, project_root: Path) -> dict:
     records = client.provenance()
     provenance = {
         "project": "de-power-market-view",
-        "retrieved_at_utc": pd.Timestamp.now(tz="UTC").isoformat(),
+        "snapshot_written_at_utc": pd.Timestamp.now(tz="UTC").isoformat(),
         "requested_local_dates": {"start": start_date, "end": end_date},
         "requested_utc_window": {
             "start": start_utc.isoformat(),
             "end": end_utc.isoformat(),
         },
         "filter_ids": FILTERS,
-        "n_fetches": len(records),
-        "n_cached_fetches": sum(bool(record["from_cache"]) for record in records),
+        "n_response_reads": len(records),
+        "n_from_smard": sum(record["source"] == "smard" for record in records),
+        "n_from_cache": sum(record["source"] == "cache" for record in records),
+        "n_cached_without_retrieval_time": sum(
+            record["source"] == "cache"
+            and record["retrieved_from_smard_at_utc"] is None
+            for record in records
+        ),
         "quality": quality,
         "fetches": records,
     }
@@ -54,7 +60,8 @@ def fetch_snapshot(start_date: str, end_date: str, project_root: Path) -> dict:
         "processed_path": processed_path,
         "provenance_path": provenance_path,
         "quality": quality,
-        "n_fetches": len(records),
+        "n_response_reads": len(records),
+        "n_from_smard": sum(record["source"] == "smard" for record in records),
     }
 
 
@@ -82,7 +89,11 @@ def main() -> None:
         f"{quality['n_complete_analysis_rows']:,} complete rows; "
         f"{quality['negative_price_hours']:,} negative-price hours."
     )
-    print(f"Provenance: {result['provenance_path']} ({result['n_fetches']} responses)")
+    print(
+        f"Provenance: {result['provenance_path']} "
+        f"({result['n_response_reads']} response reads, "
+        f"{result['n_from_smard']} fresh from SMARD)"
+    )
 
 
 if __name__ == "__main__":

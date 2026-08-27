@@ -38,21 +38,30 @@ class SmardError(RuntimeError):
 
 @dataclass(frozen=True)
 class FetchRecord:
-    """Evidence about one API response used by the data snapshot."""
+    """Evidence about one API response used by the data snapshot.
+
+    Reading a cached body is not the same event as retrieving it from SMARD,
+    so the two timestamps are recorded separately. retrieved_from_smard_at_utc
+    is None for a cache entry written before retrieval times were recorded:
+    that original moment is genuinely unknown and is reported as such rather
+    than being silently replaced by the cache-read time.
+    """
 
     url: str
     sha256: str
     n_bytes: int
-    retrieved_at_utc: str
-    from_cache: bool
+    source: str
+    read_at_utc: str
+    retrieved_from_smard_at_utc: str | None
 
     def to_dict(self) -> dict[str, object]:
         return {
             "url": self.url,
             "sha256": self.sha256,
             "n_bytes": self.n_bytes,
-            "retrieved_at_utc": self.retrieved_at_utc,
-            "from_cache": self.from_cache,
+            "source": self.source,
+            "read_at_utc": self.read_at_utc,
+            "retrieved_from_smard_at_utc": self.retrieved_from_smard_at_utc,
         }
 
 
@@ -67,16 +76,32 @@ class SmardClient:
     delay_seconds: float = 0.08
     fetches: list[FetchRecord] = field(default_factory=list)
 
-    def _cache_path(self, url: str) -> Path | None:
+    def _cache_paths(self, url: str) -> tuple[Path, Path] | None:
+        """Return the cached body path and its provenance sidecar."""
+
         if self.cache_dir is None:
             return None
         key = hashlib.sha256(url.encode("utf-8")).hexdigest()
-        return self.cache_dir / f"{key}.json"
+        return self.cache_dir / f"{key}.json", self.cache_dir / f"{key}.meta.json"
 
-    def _get_raw(self, url: str) -> tuple[bytes, bool]:
-        cache_path = self._cache_path(url)
-        if cache_path is not None and cache_path.exists():
-            return cache_path.read_bytes(), True
+    @staticmethod
+    def _cached_retrieval_time(meta_path: Path) -> str | None:
+        if not meta_path.exists():
+            return None
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            return None
+        value = meta.get("retrieved_from_smard_at_utc") if isinstance(meta, dict) else None
+        return str(value) if value else None
+
+    def _get_raw(self, url: str) -> tuple[bytes, str | None, bool]:
+        """Return the body, its original SMARD retrieval time, and cache status."""
+
+        paths = self._cache_paths(url)
+        if paths is not None and paths[0].exists():
+            body_path, meta_path = paths
+            return body_path.read_bytes(), self._cached_retrieval_time(meta_path), True
 
         last_error: Exception | None = None
         for attempt in range(self.max_retries):
@@ -89,10 +114,24 @@ class SmardClient:
                 )
                 with urllib.request.urlopen(request, timeout=self.timeout) as response:
                     raw = response.read()
-                if cache_path is not None:
-                    cache_path.parent.mkdir(parents=True, exist_ok=True)
-                    cache_path.write_bytes(raw)
-                return raw, False
+                retrieved_at = pd.Timestamp.now(tz="UTC").isoformat()
+                if paths is not None:
+                    body_path, meta_path = paths
+                    body_path.parent.mkdir(parents=True, exist_ok=True)
+                    body_path.write_bytes(raw)
+                    meta_path.write_text(
+                        json.dumps(
+                            {
+                                "url": url,
+                                "retrieved_from_smard_at_utc": retrieved_at,
+                                "sha256": hashlib.sha256(raw).hexdigest(),
+                            },
+                            indent=2,
+                        )
+                        + "\n",
+                        encoding="utf-8",
+                    )
+                return raw, retrieved_at, False
             except (urllib.error.URLError, TimeoutError) as exc:
                 last_error = exc
                 if attempt < self.max_retries - 1:
@@ -101,14 +140,15 @@ class SmardClient:
         raise SmardError(f"failed to fetch {url} after {self.max_retries} attempts: {last_error}")
 
     def _get_json(self, url: str) -> dict:
-        raw, from_cache = self._get_raw(url)
+        raw, retrieved_at, from_cache = self._get_raw(url)
         self.fetches.append(
             FetchRecord(
                 url=url,
                 sha256=hashlib.sha256(raw).hexdigest(),
                 n_bytes=len(raw),
-                retrieved_at_utc=pd.Timestamp.now(tz="UTC").isoformat(),
-                from_cache=from_cache,
+                source="cache" if from_cache else "smard",
+                read_at_utc=pd.Timestamp.now(tz="UTC").isoformat(),
+                retrieved_from_smard_at_utc=retrieved_at,
             )
         )
         try:

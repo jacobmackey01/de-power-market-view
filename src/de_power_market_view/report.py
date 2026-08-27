@@ -136,11 +136,23 @@ def render_report(
 
     provenance_sentence = ""
     if provenance:
+        unknown_time = provenance.get("n_cached_without_retrieval_time") or 0
         provenance_sentence = (
-            f"The snapshot records {provenance.get('n_fetches', 'n/a')} response "
-            f"fetches, of which {provenance.get('n_cached_fetches', 'n/a')} were "
-            f"served from the local raw-response cache. See "
-            f"data/provenance.json for URL hashes and retrieval timestamps."
+            f"The snapshot records {_num(provenance.get('n_response_reads'))} "
+            f"response reads: {_num(provenance.get('n_from_smard'))} retrieved "
+            f"from SMARD during the run that wrote it and "
+            f"{_num(provenance.get('n_from_cache'))} read from the local "
+            f"raw-response cache."
+        )
+        if unknown_time:
+            provenance_sentence += (
+                f" Of the cached responses, {_num(unknown_time)} predate "
+                f"retrieval-time recording, so the moment SMARD actually served "
+                f"them is unknown and is reported as null rather than as the "
+                f"cache-read time."
+            )
+        provenance_sentence += (
+            " See data/provenance.json for URL hashes and both timestamps."
         )
 
     quality_section = ""
