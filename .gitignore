@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Raw API responses are cached locally but are not needed in Git.
+data/raw/*
+!data/raw/.gitkeep
+
+# The DuckDB file is reproducible from the processed CSV.
+data/*.duckdb
+data/*.duckdb.wal
