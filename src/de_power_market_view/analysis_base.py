@@ -11,9 +11,12 @@ import pandas as pd
 from .data import expected_hours_for_local_date
 
 MIN_SUPPORT_PER_CLASS = 50
+# Residual load is defined as load - wind - solar, so including load_mw
+# alongside the other three would make the design matrix exactly rank
+# deficient and the coefficients unidentified. Load is therefore represented
+# through residual load and the two generation terms only.
 MODEL_FEATURES = [
     "residual_load_mw",
-    "load_mw",
     "wind_total_mw",
     "solar_mw",
     "hour_sin",
@@ -283,14 +286,32 @@ def _fit_logistic(
 
 
 def _average_precision(y_true: np.ndarray, probability: np.ndarray) -> float:
+    """Average precision, with tied scores collapsed into one threshold.
+
+    Ties are not an edge case here: the prevalence baseline assigns one
+    identical probability to every test hour. Ranking ties by array order
+    would score that baseline on the accident of chronological ordering
+    rather than on its actual (constant) ranking. Collapsing tied scores
+    makes the baseline's average precision equal the test-set prevalence,
+    which is the only defensible value for a constant predictor, and matches
+    scikit-learn's average_precision_score.
+    """
+
     positives = int(y_true.sum())
     if positives == 0:
         return math.nan
     order = np.argsort(-probability, kind="mergesort")
     sorted_y = y_true[order]
-    cumulative = np.cumsum(sorted_y)
-    precision = cumulative / np.arange(1, len(sorted_y) + 1)
-    return float((precision * sorted_y).sum() / positives)
+    sorted_probability = probability[order]
+
+    # One threshold per distinct score: the last index of each tied run.
+    thresholds = np.append(
+        np.flatnonzero(np.diff(sorted_probability)), len(sorted_y) - 1
+    )
+    true_positives = np.cumsum(sorted_y)[thresholds]
+    precision = true_positives / (thresholds + 1)
+    recall = true_positives / positives
+    return float((np.diff(np.concatenate(([0.0], recall))) * precision).sum())
 
 
 def _roc_auc(y_true: np.ndarray, probability: np.ndarray) -> float:
