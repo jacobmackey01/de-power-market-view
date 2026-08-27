@@ -141,3 +141,92 @@ def plot_market_view(result: dict, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(output_path, dpi=180, bbox_inches="tight")
     plt.close(fig)
+
+
+def _rate_bars(ax, frame, labels, colors, title, ylabel):
+    """Draw one bar-per-stratum panel with Wilson intervals and counts."""
+
+    import numpy as np
+
+    x = np.arange(len(frame))
+    rates = frame["negative_rate"].to_numpy(dtype=float)
+    errors = np.vstack(
+        [
+            rates - frame["ci_low"].to_numpy(dtype=float),
+            frame["ci_high"].to_numpy(dtype=float) - rates,
+        ]
+    )
+    ax.bar(x, rates, color=colors, edgecolor="#17324d")
+    ax.errorbar(x, rates, yerr=errors, fmt="none", ecolor="#17324d", capsize=4, lw=1.2)
+    ax.set_xticks(x, labels)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    ax.grid(axis="y", alpha=0.25)
+    ceiling = max(float(frame["ci_high"].max()), float(rates.max()))
+    ceiling = ceiling if ceiling > 0 else 1.0
+    headroom = ceiling * 0.04
+    for position, (_, row) in enumerate(frame.iterrows()):
+        ax.text(
+            position,
+            row["ci_high"] + headroom,
+            f"{_percent(row['negative_rate'])}\n(n={int(row['n_hours']):,})",
+            ha="center",
+            va="bottom",
+            fontsize=8,
+        )
+    ax.set_ylim(0, ceiling * 1.22)
+
+
+def plot_exploratory_view(result: dict, output_path: Path) -> None:
+    """Save the post-hoc decile and renewable-surplus views.
+
+    Kept in a separate figure from plot_market_view so the preregistered
+    primary readout and the exploratory sensitivity views cannot be mistaken
+    for one another.
+    """
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.ticker import PercentFormatter
+
+    exploratory = result.get("exploratory", {})
+    deciles = exploratory.get("residual_deciles")
+    sign_split = exploratory.get("residual_sign_split")
+    if deciles is None or sign_split is None or deciles.empty or sign_split.empty:
+        raise ValueError("exploratory tables are unavailable")
+
+    fig, axes = plt.subplots(1, 2, figsize=(15, 5.5), constrained_layout=True)
+    fig.suptitle(
+        "Exploratory sensitivity — chosen after the first retrieval, not preregistered",
+        fontsize=13,
+        fontweight="bold",
+    )
+
+    shades = plt.get_cmap("Blues")
+    _rate_bars(
+        axes[0],
+        deciles,
+        [f"D{index + 1}" for index in range(len(deciles))],
+        [shades(0.85 - 0.07 * index) for index in range(len(deciles))],
+        "Risk by observed residual-load decile",
+        "Negative-price rate",
+    )
+    axes[0].set_xlabel("Residual-load decile (D1 lowest)")
+
+    _rate_bars(
+        axes[1],
+        sign_split,
+        ["renewables\nexceed load", "residual load\nat or above 0"],
+        ["#b2182b", "#c7d7e5"],
+        "Risk by the sign of residual load",
+        "Negative-price rate",
+    )
+
+    for ax in axes:
+        ax.yaxis.set_major_formatter(PercentFormatter(xmax=1.0, decimals=0))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(fig)

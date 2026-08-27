@@ -134,6 +134,24 @@ def render_report(
         )
         coefficient_section = ""
 
+    exploratory = result.get("exploratory", {})
+    deciles = exploratory.get("residual_deciles", pd.DataFrame()).copy()
+    sign_split = exploratory.get("residual_sign_split", pd.DataFrame()).copy()
+
+    if len(sign_split) == 2:
+        surplus = sign_split.iloc[0]
+        rest = sign_split.iloc[1]
+        sign_sentence = (
+            f"In this sample, hours in which wind and solar together exceeded "
+            f"German load cleared below zero {_pct(surplus['negative_rate'])} of "
+            f"the time (95% Wilson interval {_pct(surplus['ci_low'])}"
+            f"–{_pct(surplus['ci_high'])}, n={int(surplus['n_hours']):,}), "
+            f"against {_pct(rest['negative_rate'])} for all other hours "
+            f"(n={int(rest['n_hours']):,})."
+        )
+    else:
+        sign_sentence = "The renewable-surplus split was not available."
+
     provenance_sentence = ""
     if provenance:
         unknown_time = provenance.get("n_cached_without_retrieval_time") or 0
@@ -237,6 +255,43 @@ seasonality is stable across future years:
 )}
 
 ![Historical negative-price risk figure](negative_price_risk.png)
+
+## Exploratory sensitivity, added after the first retrieval
+
+Neither view below was preregistered. Both were added once the preregistered
+quartiles turned out to place almost the entire event mass inside Q1, leaving
+Q2 to Q4 nearly empty and hiding how steeply risk varies inside that bottom
+quartile. Amendment 1 in <code>PREREGISTRATION.md</code> records that decision
+and its date.
+
+They are reported alongside the primary readout, not in place of it. Because
+they were chosen with knowledge of the data, their sharper separation is a
+description of this sample rather than evidence of the same standing as the
+preregistered table above.
+
+### Residual-load deciles
+
+{_table(
+    deciles,
+    ["group", "n_hours", "negative_hours", "negative_rate", "ci_low", "ci_high"],
+    ["Stratum", "Hours", "Negative", "Rate", "CI low", "CI high"],
+)}
+
+### Renewable surplus: residual load below zero
+
+Unlike the quantile strata, this boundary is fixed by the physics of the
+system rather than by the retrieved sample, so it does not move when the
+window changes.
+
+{_table(
+    sign_split,
+    ["group", "n_hours", "negative_hours", "negative_rate", "ci_low", "ci_high"],
+    ["Condition", "Hours", "Negative", "Rate", "CI low", "CI high"],
+)}
+
+{sign_sentence}
+
+![Exploratory negative-price risk figure](negative_price_exploratory.png)
 
 ## Chronological diagnostic
 

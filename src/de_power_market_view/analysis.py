@@ -90,53 +90,104 @@ def rate_table(
     )
 
 
-def add_residual_load_quartile(frame: pd.DataFrame) -> pd.DataFrame:
+QUARTILE_LABELS = [
+    "Q1 · lowest residual load",
+    "Q2",
+    "Q3",
+    "Q4 · highest residual load",
+]
+DECILE_LABELS = [
+    "D1 · lowest residual load",
+    *[f"D{index}" for index in range(2, 10)],
+    "D10 · highest residual load",
+]
+
+
+def add_residual_load_strata(
+    frame: pd.DataFrame,
+    labels: list[str],
+    column: str,
+) -> pd.DataFrame:
     """Assign equal-count retrospective residual-load strata."""
 
     out = frame.copy()
+    n_strata = len(labels)
     ranked = out["residual_load_mw"].rank(method="first", pct=True)
-    out["residual_load_quartile"] = pd.cut(
-        ranked,
-        bins=[-np.inf, 0.25, 0.50, 0.75, np.inf],
-        labels=[
-            "Q1 · lowest residual load",
-            "Q2",
-            "Q3",
-            "Q4 · highest residual load",
-        ],
-        include_lowest=True,
-    )
+    edges = [-np.inf, *[index / n_strata for index in range(1, n_strata)], np.inf]
+    out[column] = pd.cut(ranked, bins=edges, labels=labels, include_lowest=True)
     return out
 
 
-def residual_quartile_table(frame: pd.DataFrame) -> pd.DataFrame:
-    """Primary descriptive table for residual-load risk."""
+def add_residual_load_quartile(frame: pd.DataFrame) -> pd.DataFrame:
+    """Assign the preregistered four equal-count residual-load strata."""
 
-    labelled = add_residual_load_quartile(frame)
-    result = rate_table(
-        labelled,
-        "residual_load_quartile",
-        order=[
-            "Q1 · lowest residual load",
-            "Q2",
-            "Q3",
-            "Q4 · highest residual load",
-        ],
-    )
+    return add_residual_load_strata(frame, QUARTILE_LABELS, "residual_load_quartile")
+
+
+def _strata_table(frame: pd.DataFrame, column: str, labels: list[str]) -> pd.DataFrame:
+    """Rates, Wilson intervals and observed bounds for one set of strata."""
+
+    result = rate_table(frame, column, order=labels)
     bounds = (
-        labelled.groupby("residual_load_quartile", observed=False)["residual_load_mw"]
+        frame.groupby(column, observed=False)["residual_load_mw"]
         .agg(["min", "max", "median"])
         .reset_index()
         .rename(
             columns={
-                "residual_load_quartile": "group",
+                column: "group",
                 "min": "residual_load_min_mw",
                 "max": "residual_load_max_mw",
                 "median": "residual_load_median_mw",
             }
         )
     )
+    bounds["group"] = bounds["group"].astype(str)
     return result.merge(bounds, on="group", how="left")
+
+
+def residual_quartile_table(frame: pd.DataFrame) -> pd.DataFrame:
+    """Primary descriptive table for residual-load risk (preregistered)."""
+
+    labelled = add_residual_load_quartile(frame)
+    return _strata_table(labelled, "residual_load_quartile", QUARTILE_LABELS)
+
+
+def residual_decile_table(frame: pd.DataFrame) -> pd.DataFrame:
+    """Ten-stratum sensitivity view. Exploratory: see PREREGISTRATION.md.
+
+    The preregistered quartiles place roughly the whole event mass in Q1 and
+    leave Q2 to Q4 almost empty, which conceals how steeply risk varies inside
+    that bottom quartile. Deciles are reported alongside them, never instead
+    of them.
+    """
+
+    labelled = add_residual_load_strata(frame, DECILE_LABELS, "residual_load_decile")
+    return _strata_table(labelled, "residual_load_decile", DECILE_LABELS)
+
+
+NEGATIVE_RESIDUAL_LABEL = "residual load < 0 MW"
+NON_NEGATIVE_RESIDUAL_LABEL = "residual load >= 0 MW"
+
+
+def residual_sign_split(frame: pd.DataFrame) -> pd.DataFrame:
+    """Split on whether renewables exceeded load. Exploratory, not preregistered.
+
+    Unlike the quantile strata, this boundary is fixed by the physics of the
+    system rather than by the retrieved sample, so it does not move when the
+    window changes.
+    """
+
+    labelled = frame.copy()
+    labelled["residual_load_sign"] = np.where(
+        labelled["residual_load_mw"] < 0,
+        NEGATIVE_RESIDUAL_LABEL,
+        NON_NEGATIVE_RESIDUAL_LABEL,
+    )
+    return _strata_table(
+        labelled,
+        "residual_load_sign",
+        [NEGATIVE_RESIDUAL_LABEL, NON_NEGATIVE_RESIDUAL_LABEL],
+    )
 
 
 def _daily_table(frame: pd.DataFrame) -> pd.DataFrame:
@@ -470,6 +521,12 @@ def analyse_market(frame: pd.DataFrame) -> dict[str, Any]:
             "complete_local_days": int(len(daily)),
         },
         "residual_quartiles": residual_quartile_table(complete),
+        # Added after the first retrieval; reported separately from the
+        # preregistered primary readout. See PREREGISTRATION.md, Amendment 1.
+        "exploratory": {
+            "residual_deciles": residual_decile_table(complete),
+            "residual_sign_split": residual_sign_split(complete),
+        },
         "hourly_rates": rate_table(
             complete,
             "local_hour",

@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 
 from .analysis import analyse_market
-from .plotting import plot_market_view
+from .plotting import plot_exploratory_view, plot_market_view
 from .report import render_report
 from .warehouse import build_warehouse, read_market_table
 
@@ -61,9 +61,11 @@ def run_view(
     result = analyse_market(market_table)
     output_dir.mkdir(parents=True, exist_ok=True)
     chart_path = output_dir / "negative_price_risk.png"
+    exploratory_chart_path = output_dir / "negative_price_exploratory.png"
     report_path = output_dir / "market_view.md"
     summary_path = output_dir / "results.json"
     plot_market_view(result, chart_path)
+    plot_exploratory_view(result, exploratory_chart_path)
     render_report(
         result,
         report_path,
@@ -80,6 +82,7 @@ def run_view(
     return {
         "database_path": database_path,
         "chart_path": chart_path,
+        "exploratory_chart_path": exploratory_chart_path,
         "report_path": report_path,
         "summary_path": summary_path,
     }

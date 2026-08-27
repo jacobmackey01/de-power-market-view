@@ -30,7 +30,9 @@ Version 0.1 is intentionally small:
 - one data source: the Bundesnetzagentur's [SMARD chart-data
   API](https://www.smard.de/en/marktdaten);
 - one historical descriptive view, supported by a chronological holdout
-  diagnostic.
+  diagnostic;
+- two exploratory strata added after the first retrieval and reported as
+  such, never in place of the preregistered readout.
 
 The project uses observed fundamentals. It is not a live signal, a
 pre-auction forecast, a causal model or a trading strategy. In particular,
@@ -64,7 +66,8 @@ checked-in SQL transformation in
 <code>src/de_power_market_view/sql/market_view.sql</code>, writes the report to
 <code>outputs/market_view.md</code>, saves the summary to
 <code>outputs/results.json</code>, and creates
-<code>outputs/negative_price_risk.png</code>.
+<code>outputs/negative_price_risk.png</code> together with
+<code>outputs/negative_price_exploratory.png</code>.
 
 The retrieval end date should be chosen far enough in the past that the last
 local day is settled and complete. The report itself selects the latest
@@ -76,10 +79,12 @@ The generated view keeps the analyst and modelling layers separate:
 
 - coverage and completeness checks;
 - overall negative-price incidence;
-- rates by residual-load quartile with Wilson intervals;
+- rates by residual-load quartile with Wilson intervals (preregistered);
 - rates by local delivery hour;
 - the latest complete day’s observed setup;
 - prior historical analogue days;
+- an exploratory decile and renewable-surplus sensitivity, clearly separated
+  from the preregistered readout and carried in its own figure;
 - a chronological logistic-regression diagnostic with support checks;
 - explicit conditions that would make the interpretation stale.
 
@@ -95,7 +100,7 @@ src/de_power_market_view/
   data.py        local-day normalisation and quality checks
   warehouse.py   DuckDB loading and query helpers
   analysis.py    risk tables, analogues and chronological diagnostic
-  plotting.py    one compact report figure
+  plotting.py    the preregistered figure and the exploratory figure
   report.py      analyst-style Markdown output
   fetch.py       de-power-fetch entry point
   view.py        de-power-view entry point
