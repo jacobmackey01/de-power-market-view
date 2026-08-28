@@ -42,6 +42,14 @@ tradeable edge.
 Read <code>PREREGISTRATION.md</code> for the frozen question, metrics, support
 gate and information boundary.
 
+## Historical view
+
+[![Four-panel chart of historical DE-LU negative-price incidence by residual-load quartile, delivery hour, month and latest-day residual-load context](outputs/negative_price_risk.png)](outputs/market_view.md)
+
+*Settled SMARD observations. This is a retrospective historical view, not a
+pre-auction forecast or trading signal. Click the figure to open the generated
+market report.*
+
 ## Run it
 
 The commands below assume a fresh Python 3.11+ environment.
