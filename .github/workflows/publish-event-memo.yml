@@ -1,0 +1,52 @@
+name: Publish event memo
+
+on:
+  push:
+    paths:
+      - 'docs/event-memos/sealed/**'
+      - 'docs/event-memos/dry-runs/**'
+      - 'scripts/publish_event_memo.py'
+      - 'tests/test_memo_publication.py'
+      - '.github/workflows/publish-event-memo.yml'
+  workflow_dispatch:
+    inputs:
+      manifest:
+        description: 'Committed event or dummy manifest path'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  receipt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test price and publication boundaries
+        run: |
+          python3 -m unittest discover -s tests -p 'test_event_prices.py'
+          python3 -m unittest discover -s tests -p 'test_memo_publication.py'
+      - name: Record committed memo and GitHub server time
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          MANIFEST: ${{ inputs.manifest }}
+        run: |
+          if [ -n "$MANIFEST" ]; then
+            python3 scripts/publish_event_memo.py --manifest "$MANIFEST" --output publication/receipts.json
+          else
+            python3 scripts/publish_event_memo.py --output publication/receipts.json
+          fi
+      - name: Save publication receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: memo-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: publication/receipts.json
+          if-no-files-found: error
+          retention-days: 90

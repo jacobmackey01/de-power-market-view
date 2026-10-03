@@ -1,0 +1,151 @@
+{
+  "bidding_zone": "DE-LU",
+  "delivery_date_local": "2025-10-26",
+  "timezone": "Europe/Berlin",
+  "unit": "EUR/MWh",
+  "interval_minutes": 15,
+  "day_quarter_hours": 100,
+  "day_elapsed_hours": 25.0,
+  "license_info": "CC BY 4.0 (creativecommons.org/licenses/by/4.0) from Bundesnetzagentur | SMARD.de",
+  "strip": {
+    "start_utc": "2025-10-25T22:00:00+00:00",
+    "end_utc_exclusive": "2025-10-26T23:00:00+00:00",
+    "quarter_hours": 100,
+    "elapsed_hours": 25.0,
+    "mean_price_eur_mwh": 6.515299999999995,
+    "negative_quarter_hours": 30
+  },
+  "hourly_means": [
+    {
+      "start_utc": "2025-10-25T22:00:00+00:00",
+      "start_local": "2025-10-26T00:00:00+02:00",
+      "price_eur_mwh": 5.5725
+    },
+    {
+      "start_utc": "2025-10-25T23:00:00+00:00",
+      "start_local": "2025-10-26T01:00:00+02:00",
+      "price_eur_mwh": 3.6975
+    },
+    {
+      "start_utc": "2025-10-26T00:00:00+00:00",
+      "start_local": "2025-10-26T02:00:00+02:00",
+      "price_eur_mwh": 3.19
+    },
+    {
+      "start_utc": "2025-10-26T01:00:00+00:00",
+      "start_local": "2025-10-26T02:00:00+01:00",
+      "price_eur_mwh": 2.015
+    },
+    {
+      "start_utc": "2025-10-26T02:00:00+00:00",
+      "start_local": "2025-10-26T03:00:00+01:00",
+      "price_eur_mwh": 0.3425
+    },
+    {
+      "start_utc": "2025-10-26T03:00:00+00:00",
+      "start_local": "2025-10-26T04:00:00+01:00",
+      "price_eur_mwh": 0.10250000000000001
+    },
+    {
+      "start_utc": "2025-10-26T04:00:00+00:00",
+      "start_local": "2025-10-26T05:00:00+01:00",
+      "price_eur_mwh": 0.10500000000000001
+    },
+    {
+      "start_utc": "2025-10-26T05:00:00+00:00",
+      "start_local": "2025-10-26T06:00:00+01:00",
+      "price_eur_mwh": 0.10749999999999998
+    },
+    {
+      "start_utc": "2025-10-26T06:00:00+00:00",
+      "start_local": "2025-10-26T07:00:00+01:00",
+      "price_eur_mwh": 0.10250000000000001
+    },
+    {
+      "start_utc": "2025-10-26T07:00:00+00:00",
+      "start_local": "2025-10-26T08:00:00+01:00",
+      "price_eur_mwh": -0.01
+    },
+    {
+      "start_utc": "2025-10-26T08:00:00+00:00",
+      "start_local": "2025-10-26T09:00:00+01:00",
+      "price_eur_mwh": -0.3125
+    },
+    {
+      "start_utc": "2025-10-26T09:00:00+00:00",
+      "start_local": "2025-10-26T10:00:00+01:00",
+      "price_eur_mwh": -0.065
+    },
+    {
+      "start_utc": "2025-10-26T10:00:00+00:00",
+      "start_local": "2025-10-26T11:00:00+01:00",
+      "price_eur_mwh": -0.08
+    },
+    {
+      "start_utc": "2025-10-26T11:00:00+00:00",
+      "start_local": "2025-10-26T12:00:00+01:00",
+      "price_eur_mwh": -0.065
+    },
+    {
+      "start_utc": "2025-10-26T12:00:00+00:00",
+      "start_local": "2025-10-26T13:00:00+01:00",
+      "price_eur_mwh": -0.5449999999999999
+    },
+    {
+      "start_utc": "2025-10-26T13:00:00+00:00",
+      "start_local": "2025-10-26T14:00:00+01:00",
+      "price_eur_mwh": -0.7325
+    },
+    {
+      "start_utc": "2025-10-26T14:00:00+00:00",
+      "start_local": "2025-10-26T15:00:00+01:00",
+      "price_eur_mwh": -0.010000000000000009
+    },
+    {
+      "start_utc": "2025-10-26T15:00:00+00:00",
+      "start_local": "2025-10-26T16:00:00+01:00",
+      "price_eur_mwh": 3.0375
+    },
+    {
+      "start_utc": "2025-10-26T16:00:00+00:00",
+      "start_local": "2025-10-26T17:00:00+01:00",
+      "price_eur_mwh": 30.002499999999998
+    },
+    {
+      "start_utc": "2025-10-26T17:00:00+00:00",
+      "start_local": "2025-10-26T18:00:00+01:00",
+      "price_eur_mwh": 42.0225
+    },
+    {
+      "start_utc": "2025-10-26T18:00:00+00:00",
+      "start_local": "2025-10-26T19:00:00+01:00",
+      "price_eur_mwh": 34.73
+    },
+    {
+      "start_utc": "2025-10-26T19:00:00+00:00",
+      "start_local": "2025-10-26T20:00:00+01:00",
+      "price_eur_mwh": 16.642500000000002
+    },
+    {
+      "start_utc": "2025-10-26T20:00:00+00:00",
+      "start_local": "2025-10-26T21:00:00+01:00",
+      "price_eur_mwh": 3.0650000000000004
+    },
+    {
+      "start_utc": "2025-10-26T21:00:00+00:00",
+      "start_local": "2025-10-26T22:00:00+01:00",
+      "price_eur_mwh": 14.9075
+    },
+    {
+      "start_utc": "2025-10-26T22:00:00+00:00",
+      "start_local": "2025-10-26T23:00:00+01:00",
+      "price_eur_mwh": 5.0600000000000005
+    }
+  ],
+  "negative_hourly_mean_hours": 8,
+  "interpretation": "Clearing-price outcome and hourly averages; not an executable pre-auction quote or P&L.",
+  "input_sha256": "04a67ce822713cd828823adc6dab24a83dface4a050031e2a7c3920f2ae597ca",
+  "source_url": "https://api.energy-charts.info/price?bzn=DE-LU&start=2025-10-26&end=2025-10-26",
+  "source_attribution": "Energy-Charts.info / Fraunhofer ISE; Bundesnetzagentur | SMARD.de, CC BY 4.0",
+  "checked_at_utc": "2026-10-03T18:45:47.529300+00:00"
+}
