@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "event",
+  "memo_path": "docs/event-memos/sealed/YYYY-MM-DD-event.md",
+  "delivery_date_local": "YYYY-MM-DD",
+  "memo_written_at_utc": "YYYY-MM-DDTHH:MM:SS+00:00",
+  "forecast": {
+    "repository": "jacobmackey01/de-power-live-forecast",
+    "commit_sha": "IMMUTABLE_40_CHARACTER_COMMIT_SHA",
+    "path": "predictions/YYYY-MM-DD.json",
+    "snapshot_path": "docs/event-memos/sealed/evidence/YYYY-MM-DD/forecast.json",
+    "sha256": "FORECAST_FILE_SHA256"
+  },
+  "evidence_files": [
+    {
+      "path": "docs/event-memos/sealed/evidence/YYYY-MM-DD/weather-and-references.json",
+      "sha256": "EVIDENCE_FILE_SHA256"
+    }
+  ]
+}

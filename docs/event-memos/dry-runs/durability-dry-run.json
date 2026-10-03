@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "kind": "dry_run",
+  "memo_path": "docs/event-memos/dry-runs/durability-dry-run.md"
+}
