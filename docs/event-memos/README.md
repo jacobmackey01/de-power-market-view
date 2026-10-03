@@ -69,16 +69,19 @@ Europe/Berlin on D-1**, skip that delivery day and record the reason.
 [Publish event memo](../../.github/workflows/publish-event-memo.yml) runs
 when a new event or dummy manifest is pushed. It records the full memo text,
 manifest/evidence hashes, exact commit and **GitHub's API-provided run creation
-time** in the Actions log, run summary and a downloadable receipt. The checkout
-is fixed to that commit. The workflow has read-only repository permissions and
-does not alter source files.
+time** in the Actions log, run summary and a downloadable receipt. It also posts
+the complete receipt JSON to the permanent [Memo receipts issue](https://github.com/jacobmackey01/de-power-market-view/issues/2).
+The checkout is fixed to that commit. Repository contents remain read-only;
+`issues: write` is used to post the receipt comment.
 
 For real events, it checks the 11:30 deadline in Berlin time, rejects a forecast
 sealed after the memo was written, and verifies the saved prediction against
 its immutable upstream URL. Pushes that edit or delete sealed files fail.
 A queued job may execute later: the receipt distinguishes GitHub's run creation
-time from the later recording time. Keep the server API record with the
-receipt and archive the artifact before its 90-day retention expires.
+time from the later recording time. The issue comment retains that original
+timestamp, committed memo and hashes after the 90-day Actions retention ends.
+Its own posting timestamp is additional evidence and may be later because of
+queueing. Keep receipt comments unchanged; add corrections separately.
 
 The [dummy memo](dry-runs/publication-dry-run.md) is clearly separate from event
 results. A local rehearsal is:
@@ -90,9 +93,9 @@ python scripts/publish_event_memo.py --local-dry-run \
 python -m unittest discover -s tests -p 'test_memo_publication.py'
 ```
 
-Only the real GitHub run supplies publication proof. The dummy is always labelled
-as a dry run. Once the workflow is on the default branch, its manual Run workflow
-control can also check a committed manifest on a selected branch.
+The dummy is always labelled as a dry run. Real memos and their evidence must
+be committed to `main`. The default-branch workflow also provides a manual
+Run workflow control for checking a committed manifest.
 
 ## Fallback and end date
 

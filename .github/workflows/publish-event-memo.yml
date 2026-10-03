@@ -18,6 +18,7 @@ on:
 permissions:
   contents: read
   actions: read
+  issues: write
 
 jobs:
   receipt:
@@ -43,7 +44,39 @@ jobs:
           else
             python3 scripts/publish_event_memo.py --output publication/receipts.json
           fi
+      - name: Preserve receipt in the Memo receipts issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import urllib.request
+
+          receipts = json.loads(Path('publication/receipts.json').read_text())
+          if not receipts:
+              print('No new memo receipts to preserve.')
+              raise SystemExit(0)
+          body = '## Publication receipt\n\n```json\n' + json.dumps(receipts, indent=2) + '\n```'
+          if len(body) > 60000:
+              raise ValueError('Receipt exceeds the issue-comment size budget; nothing was truncated.')
+          url = f"https://api.github.com/repos/{os.environ['GITHUB_REPOSITORY']}/issues/2/comments"
+          request = urllib.request.Request(
+              url, data=json.dumps({'body': body}).encode(), method='POST',
+              headers={
+                  'Authorization': f"Bearer {os.environ['GITHUB_TOKEN']}",
+                  'Accept': 'application/vnd.github+json',
+                  'Content-Type': 'application/json',
+                  'User-Agent': 'de-power-market-view-publication',
+              },
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              comment = json.load(response)
+          print(f"Permanent receipt: {comment['html_url']} (posted {comment['created_at']})")
+          PY
       - name: Save publication receipt
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: memo-publication-${{ github.run_id }}-${{ github.run_attempt }}
