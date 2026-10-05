@@ -1,54 +1,24 @@
 # DE-LU power-market view
 
-## When does Germany go negative?
+Negative day-ahead prices occurred in **6.2% of 23,231 complete hourly
+observations** from 1 January 2024 to 25 August 2026. In the lowest residual-load
+quartile, the rate was **24.7%**: 1,435 of the sample's 1,436 negative-price hours.
 
-This repository is a compact, reproducible case study of negative-price risk
-in the DE-LU day-ahead power market.
+The analysis combines settled SMARD prices with observed load, wind and solar,
+derives residual load in DuckDB/SQL, and examines historical negative-price risk.
+Observed fundamentals describe the settled market; they do not establish a
+pre-auction signal, causality or a tradable strategy.
 
-It answers a deliberately narrow question:
+[![Historical DE-LU negative-price incidence by residual-load quartile, delivery hour, month and latest-day context](outputs/negative_price_risk.png)](outputs/market_view.md)
 
-> When does Germany go negative, and which observed fundamental conditions are
-> associated with materially higher risk?
+[Historical findings](outputs/market_view.md) · [Frozen methodology](PREREGISTRATION.md)
 
-The workflow combines settled day-ahead prices with load, wind and solar
-generation, derives residual load in SQL, and produces an analyst-style view:
+## Weather decision case
 
-**market question → fundamentals → SQL/DuckDB → historical risk → chart →
-interpretation → invalidation conditions**
-
-This is the missing kind of evidence in a portfolio otherwise centred on
-forecasting, machine learning, pipelines and applied AI: not just whether a
-model scores well, but whether the analyst can explain what the market was
-doing.
-
-## Scope
-
-Version 0.1 is intentionally small:
-
-- one market: Germany/Luxembourg (DE-LU);
-- one event: price below 0 EUR/MWh;
-- one data source: the Bundesnetzagentur's [SMARD chart-data
-  API](https://www.smard.de/en/marktdaten);
-- one historical descriptive view, supported by a chronological holdout
-  diagnostic;
-- two exploratory strata added after the first retrieval and reported as
-  such, never in place of the preregistered readout.
-
-The project uses observed fundamentals. It is not a live signal, a
-pre-auction forecast, a causal model or a trading strategy. In particular,
-beating a prevalence baseline on a historical holdout would not establish
-tradeable edge.
-
-Read <code>PREREGISTRATION.md</code> for the frozen question, metrics, support
-gate and information boundary.
-
-## Historical view
-
-[![Four-panel chart of historical DE-LU negative-price incidence by residual-load quartile, delivery hour, month and latest-day residual-load context](outputs/negative_price_risk.png)](outputs/market_view.md)
-
-*Settled SMARD observations. This is a retrospective historical view, not a
-pre-auction forecast or trading signal. Click the figure to open the generated
-market report.*
+[August heatwave: German evening power](docs/event-memos/practice/2026-08-13-heatwave-evening.md)
+examines a bullish price view, the missing matching entry price, the decision to
+stay out and the realised outcome. It is reconstructed practice, written after
+the event. A prospective memo will be linked here once one has been published.
 
 ## Run it
 
