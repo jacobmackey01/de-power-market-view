@@ -47,6 +47,10 @@ The archived forecast understated it by **86.61 EUR/MWh**, versus D-7's
 138.00 absolute error. This supports the direction relative to D-7 for this
 chosen example, but cannot tell us whether a long beat the market.
 
+The hourly 90th-percentile forecasts averaged **289.51 EUR/MWh**, close to the
+**284.87 EUR/MWh** strip outcome; this average is not itself the 90th percentile
+of the strip's mean price.
+
 Observed residual load averaged **36.70 GW**, versus **23.62 GW** a week earlier.
 Load rose only 0.51 GW; wind fell 13.21 GW and solar rose 0.64 GW:
 0.51 − (−13.21) − 0.64 = **13.08 GW** more residual load.
