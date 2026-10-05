@@ -16,7 +16,7 @@ solar declines. The report also found no immediate adequacy problem:
 cross-border supply and demand response could absorb the stress. It does not
 establish a German generation outage or a German demand shock.
 
-The [existing v1 forecast](https://github.com/jacobmackey01/de-power-live-forecast/blob/main/predictions/2026-08-13.json),
+The [existing v1 forecast](https://github.com/jacobmackey01/de-power-live-forecast/blob/d97676ab5ba2c11241301b6b4ffda6612bcb9f90/predictions/2026-08-13.json),
 sealed on 12 August at 07:22:11 UTC, projected **198.26 EUR/MWh** across these
 four hours. The same hours on 6 August averaged **146.87 EUR/MWh** in the
 settled SMARD snapshot. Back-of-envelope: 198.26 − 146.87 = **51.39 EUR/MWh**,
